@@ -1,0 +1,4 @@
+name = "PINN_julia"
+uuid = "1b55c061-6adc-4a7d-aded-a948c8096180"
+authors = ["Nikita Budnikov <budnikov_nikita@list.ru>"]
+version = "0.1.0"
