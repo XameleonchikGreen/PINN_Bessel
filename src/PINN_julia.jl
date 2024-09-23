@@ -45,7 +45,7 @@ callback = function (p, l)
     return false
 end
 
-res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.01); callback = callback, maxiters = 2000)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.01); callback = callback, maxiters = 4000)
 phi = discretization.phi
 
 # Creating diagrams
@@ -58,15 +58,15 @@ x_plot = collect(xs)
 plot(x_plot,
      u_real,
      label = "Bessel function",
-     xlabel="x",
-     ylabel= "y",
+     xlabel = L"X",
+     ylabel = L"Y",
      ylims=(-1,1),
      xlims=(0,10))
 plot!(x_plot,
       u_predict,
       label = "PINN solution",
-      xlabel="x",
-      ylabel= "y",
+      xlabel = L"X",
+      ylabel = L"Y",
       ylims=(-1,1),
       xlims=(0,10))
 png("Bessel.png")
@@ -74,6 +74,6 @@ png("Bessel.png")
 p1 = plot(LinearIndices(loss),
           loss,
           label = "loss(epochs)",
-          xlabel = "epochs",
+          xlabel = L"epochs",
           ylabel = L"log_{10}(loss)")
 png(p1, "loss.png")
