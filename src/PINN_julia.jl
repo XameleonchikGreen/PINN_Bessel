@@ -45,7 +45,12 @@ callback = function (p, l)
     return false
 end
 
-res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.01); callback = callback, maxiters = 4000)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.01); callback = callback, maxiters = 2000)
+prob = remake(prob, u0 = res.u)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.0001); callback = callback, maxiters = 4000)
+prob = remake(prob, u0 = res.u)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.00001); callback = callback, maxiters = 6000)
+
 phi = discretization.phi
 
 # Creating diagrams
