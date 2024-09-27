@@ -4,6 +4,7 @@ using Optimization, OptimizationOptimisers
 # Diagram of functions
 using Plots, LaTeXStrings
 import ModelingToolkit: Interval, infimum, supremum
+using Printf
 # Solution
 using Bessels
 
@@ -41,15 +42,17 @@ loss = []
 # Callback function
 callback = function (p, l)
     push!(loss, log10(l))
-    println("Current loss is: $l")
+    @printf("Step: %5d Current loss is: %g \n", length(loss), l)
     return false
 end
 
 res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.01); callback = callback, maxiters = 2000)
 prob = remake(prob, u0 = res.u)
-res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.0001); callback = callback, maxiters = 4000)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.001); callback = callback, maxiters = 4000)
 prob = remake(prob, u0 = res.u)
-res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.00001); callback = callback, maxiters = 6000)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.0001); callback = callback, maxiters = 6000)
+prob = remake(prob, u0 = res.u)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.00001); callback = callback, maxiters = 8000)
 
 phi = discretization.phi
 
@@ -74,11 +77,11 @@ plot!(x_plot,
       ylabel = L"Y",
       ylims=(-1,1),
       xlims=(0,10))
-png("Bessel.png")
+png("../images/Bessel_0.png")
 
 p1 = plot(LinearIndices(loss),
           loss,
           label = "loss(epochs)",
           xlabel = L"epochs",
           ylabel = L"log_{10}(loss)")
-png(p1, "loss.png")
+png(p1, "../images/loss_0.png")
