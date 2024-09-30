@@ -33,7 +33,8 @@ chain = Lux.Chain(Dense(1, inner, sin),
 
 # Discretization
 strategy = GridTraining(0.05)
-discretization = PhysicsInformedNN(chain, strategy)
+loss_type = NonAdaptiveLoss(pde_loss_weights = 1.0, bc_loss_weights = 1.0, additional_loss_weights = 0.0)
+discretization = PhysicsInformedNN(chain, strategy, adaptive_loss=loss_type)
 
 @named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
 prob = discretize(pde_system, discretization)
