@@ -49,11 +49,13 @@ end
 
 res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.01); callback = callback, maxiters = 2000)
 prob = remake(prob, u0 = res.u)
-res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.001); callback = callback, maxiters = 4000)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.001); callback = callback, maxiters = 2000)
 prob = remake(prob, u0 = res.u)
-res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.0001); callback = callback, maxiters = 6000)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.0001); callback = callback, maxiters = 2000)
 prob = remake(prob, u0 = res.u)
-res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.00001); callback = callback, maxiters = 8000)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.00001); callback = callback, maxiters = 6000)
+prob = remake(prob, u0 = res.u)
+res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.000001); callback = callback, maxiters = 8000)
 
 phi = discretization.phi
 
@@ -84,5 +86,11 @@ p1 = plot(LinearIndices(loss),
           loss,
           label = "loss(epochs)",
           xlabel = L"epochs",
-          ylabel = L"log_{10}(loss)")
+          ylabel = L"log_{10}(loss)",
+          yticks = -5:1:3,
+          xticks = 0:1000:20000,
+          size = (1200, 800),
+          left_margin=10Plots.mm,
+          bottom_margin=10Plots.mm,
+          formatter=:plain)
 png(p1, "../images/loss_1.png")
