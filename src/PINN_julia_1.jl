@@ -20,7 +20,7 @@ eq = Dxx(y(x)) * x^2 + Dx(y(x)) * x + (x^2 - α^2) * y(x) ~ 0
 
 # Boundary conditions
 bcs = [y(0) ~ 0.0,
-       Dx(y(0)) ~ 1.0]
+       Dx(y(0)) ~ 0.5]
 # Space and time domains
 domains = [x ∈ Interval(0.0, 10.0)]
 
@@ -33,7 +33,7 @@ chain = Lux.Chain(Dense(1, inner, sin),
 
 # Discretization
 strategy = GridTraining(0.05)
-loss_type = NonAdaptiveLoss(pde_loss_weights = 1.0, bc_loss_weights = 100000.0, additional_loss_weights = 0.0)
+loss_type = NonAdaptiveLoss(pde_loss_weights = 1.0, bc_loss_weights = 1.0, additional_loss_weights = 0.0)
 discretization = PhysicsInformedNN(chain, strategy, adaptive_loss=loss_type)
 
 @named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
