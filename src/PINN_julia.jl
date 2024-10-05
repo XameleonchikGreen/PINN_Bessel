@@ -5,6 +5,8 @@ using Optimization, OptimizationOptimisers
 using Plots, LaTeXStrings
 import ModelingToolkit: Interval, infimum, supremum
 using Printf
+# Saving weights
+using JLD2
 # Solution
 using Bessels
 
@@ -18,8 +20,9 @@ const lr1 = 4000;
 const lr2 = 4000;
 const lr3 = 8000;
 const lr4 = 14000;
-const α = 0;
+const α = 1;
 const Grid = "uniform";
+const finding_weights = false;
 
 # Bessel ODE
 eq = Dxx(y(x)) * x^2 + Dx(y(x)) * x + (x^2 - α^2) * y(x) ~ 0
@@ -48,7 +51,18 @@ if(Grid == "uniform")
 elseif(Grid == "bn") 
 end
 loss_type = NonAdaptiveLoss(pde_loss_weights = 1.0, bc_loss_weights = 0.3, additional_loss_weights = 0.0)
-discretization = PhysicsInformedNN(chain, strategy, adaptive_loss=loss_type)
+
+if(finding_weights)
+    discretization = PhysicsInformedNN(chain, strategy, adaptive_loss=loss_type)
+    # Saving weights
+    weights = discretization.init_params
+    save("../weights/SIMB.jld2", Dict("params" => weights))
+else
+    # Loading weights
+    loadata = load("../weights/SIMB.jld2")
+    @show loadata["params"];
+    discretization = PhysicsInformedNN(chain, strategy, adaptive_loss=loss_type, init_params = loadata["params"])
+end
 
 @named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
 prob = discretize(pde_system, discretization)
