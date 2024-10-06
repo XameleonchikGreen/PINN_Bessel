@@ -16,13 +16,13 @@ Dx = Differential(x)
 Dxx = Differential(x)^2
 
 # Consts
-const lr1 = 4000;
-const lr2 = 4000;
-const lr3 = 8000;
-const lr4 = 14000;
-const α = 1;
-const Grid = "uniform";
-const finding_weights = false;
+const lr1 = 4000;                   # Epochs for 0.01 lr
+const lr2 = 4000;                   # Epochs for 0.001 lr
+const lr3 = 8000;                   # Epochs for 0.0001 lr
+const lr4 = 14000;                  # Epochs for 0.00001 lr
+const α = 1;                        # Order of Bessel function
+const Grid = "uniform";             # "uniform", "quasi-random", "random", "adaptive" grids
+const finding_weights = false;       # 'true' for finding new weights and 'false' for using weights from file
 
 # Bessel ODE
 eq = Dxx(y(x)) * x^2 + Dx(y(x)) * x + (x^2 - α^2) * y(x) ~ 0
@@ -54,18 +54,21 @@ loss_type = NonAdaptiveLoss(pde_loss_weights = 1.0, bc_loss_weights = 0.3, addit
 
 if(finding_weights)
     discretization = PhysicsInformedNN(chain, strategy, adaptive_loss=loss_type)
+    @named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
+    prob = discretize(pde_system, discretization)
+
     # Saving weights
-    weights = discretization.init_params
+    weights = prob.u0
     save("../weights/SIMB.jld2", Dict("params" => weights))
 else
     # Loading weights
     loadata = load("../weights/SIMB.jld2")
-    @show loadata["params"];
+
     discretization = PhysicsInformedNN(chain, strategy, adaptive_loss=loss_type, init_params = loadata["params"])
+    @named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
+    prob = discretize(pde_system, discretization)
 end
 
-@named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
-prob = discretize(pde_system, discretization)
 loss = []
 
 # Callback function
