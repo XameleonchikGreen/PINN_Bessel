@@ -21,8 +21,8 @@ const lr2 = 4000;                   # Epochs for 0.001 lr
 const lr3 = 8000;                   # Epochs for 0.0001 lr
 const lr4 = 14000;                  # Epochs for 0.00001 lr
 const α = 1;                        # Order of Bessel function
-const Grid = "uniform";             # "uniform", "quasi-random", "random", "adaptive" grids
-const finding_weights = false;       # 'true' for finding new weights and 'false' for using weights from file
+const Grid = "random";             # "uniform", "random", "quasi-random", "adaptive" grids
+const finding_weights = false;      # 'true' for finding new weights and 'false' for using weights from file
 
 # Bessel ODE
 eq = Dxx(y(x)) * x^2 + Dx(y(x)) * x + (x^2 - α^2) * y(x) ~ 0
@@ -47,8 +47,9 @@ chain = Lux.Chain(Dense(1, inner, sin),
 
 # Discretization
 if(Grid == "uniform")
-    strategy = GridTraining(0.05)
-elseif(Grid == "bn") 
+    strategy = GridTraining(0.05)           # 10 / 0.05 = 200 points
+elseif(Grid == "random")
+    strategy = StochasticTraining(200)      # 200 points
 end
 loss_type = NonAdaptiveLoss(pde_loss_weights = 1.0, bc_loss_weights = 0.3, additional_loss_weights = 0.0)
 
@@ -112,7 +113,7 @@ plot!(x_plot,
       size = (1600, 900),
       left_margin=10Plots.mm,
       bottom_margin=10Plots.mm)
-png("../images/Bessel_$(α)_$(Grid).png")
+png("../images/$(Grid)/Bessel_$(α)_$(Grid).png")
 
 p1 = plot(LinearIndices(loss),
           loss,
@@ -126,8 +127,8 @@ p1 = plot(LinearIndices(loss),
           bottom_margin=10Plots.mm,
           formatter=:plain)
 vline!([0, lr1, lr1+lr2, lr1+lr2+lr3], line = :dash)
-annotate!(0+700, 2, text(L"η = 0.01"))
-annotate!(lr1+800, 2, text(L"η = 0.001"))
-annotate!(lr1+lr2+900, 2, text(L"η = 0.0001"))
-annotate!(lr1+lr2+lr3+1000, 2, text(L"η = 0.00001"))
-png(p1, "../images/loss_$(α)_$(Grid).png")
+annotate!(0+900, 2, text(L"η = 0.01"))
+annotate!(lr1+1000, 2, text(L"η = 0.001"))
+annotate!(lr1+lr2+1100, 2, text(L"η = 0.0001"))
+annotate!(lr1+lr2+lr3+1200, 2, text(L"η = 0.00001"))
+png(p1, "../images/$(Grid)/loss_$(α)_$(Grid).png")
