@@ -32,8 +32,6 @@ Base.@kwdef struct MyGrid <: QuasiMonteCarlo.DeterministicSamplingAlgorithm
 end
 
 function QuasiMonteCarlo.sample(n::Integer, d::Integer, S::MyGrid, T = Float64)
-    # samples = rand.(range.(zeros(T, d), ones(T,d); length = n+1), Ref(n))
-    # randomize(mapreduce(permutedims, vcat, samples), S.R)
     global pnt
     randomize(mapreduce(permutedims, vcat, pnt), S.R)
 end
@@ -63,24 +61,19 @@ chain = Lux.Chain(Dense(1, inner, sin),
 if(Grid == "uniform")
     pnt[1] = collect(Float64, 0.005:0.005:1.0)
 elseif(Grid == "random")
-    pnt[1] = [0]
+    pnt[1] = Random.rand(Float64, 200)
 end
 strategy = QuasiRandomTraining(200, sampling_alg = MyGrid(), resampling = false, minibatch = 1)
 
-if(finding_weights)
-    discretization = PhysicsInformedNN(chain, strategy)
-    @named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
+loadata = Dict{String, Any}("params" => nothing)
 
-    # Saving weights
-    weights = prob.u0
-    save("../weights/SIMB.jld2", Dict("params" => weights))
-else
+if(!finding_weights)
     # Loading weights
-    loadata = load("../weights/SIMB.jld2")
-
-    discretization = PhysicsInformedNN(chain, strategy, init_params = loadata["params"])
-    @named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
+    loadata = load("../weights/SIMB_$(α).jld2")
 end
+
+discretization = PhysicsInformedNN(chain, strategy, init_params = loadata["params"])
+@named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
 sym_prob = NeuralPDE.symbolic_discretize(pde_system, discretization)
 
 phi = sym_prob.phi
@@ -105,6 +98,12 @@ end
 f_ = OptimizationFunction(loss_function, Optimization.AutoZygote())
 prob = Optimization.OptimizationProblem(f_, sym_prob.flat_init_params)
 
+if(finding_weights)
+    # Saving weights
+    weights = prob.u0
+    save("../weights/SIMB_$(α).jld2", Dict("params" => weights))
+end
+
 res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.01); callback = callback, maxiters = lr1)
 prob = remake(prob, u0 = res.u)
 res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.001); callback = callback, maxiters = lr2)
@@ -118,44 +117,59 @@ dx = 0.05
 xs = [infimum(d.domain):(dx / 10):supremum(d.domain) for d in domains][1]
 u_real = [besselj(α, x) for x in xs]
 u_predict = [first(phi(x, res.u)) for x in xs]
-
+x_scatter = pnt[1] .* 10;
+u_predict_scatter = [first(phi(x, res.u)) for x in x_scatter]
 x_plot = collect(xs)
+
 plot(x_plot,
      u_real,
      label = "Bessel function",
-     xlabel = L"X",
-     ylabel = L"Y",
-     ylims=(-1,1),
-     xlims=(0,10))
+     size = (1600, 900),
+     margin = 10Plots.mm,
+     framestyle = :origin
+    )
+
 plot!(x_plot,
       u_predict,
       label = "PINN solution",
-      xlabel = L"X",
-      ylabel = L"Y",
-      ylims=(-1,1),
-      xlims=(0,10),
-      size = (1600, 900),
-      left_margin=10Plots.mm,
-      bottom_margin=10Plots.mm)
-vline!(pnt .* 10,
-       line = :dash,
-       linecolor = :green)
+     )
+
+plot!(x_scatter,
+      u_predict_scatter,
+      seriestype = :sticks,
+      linecolor = :green,
+      linealpha = 0.4,
+      label = "",
+     )
+
+xlabel!(L"X")
+ylabel!(L"Y")
+ylims!(-1, 1)
+xlims!(0, 10)
+
 png("../images/$(Grid)/Bessel_$(α)_$(Grid).png")
 
 p1 = plot(LinearIndices(loss),
           loss,
           label = "loss(epochs)",
-          xlabel = L"epochs",
-          ylabel = L"log_{10}(loss)",
-          yticks = -5:1:3,
-          xticks = 0:2000:30000,
           size = (1600, 900),
-          left_margin=10Plots.mm,
-          bottom_margin=10Plots.mm,
-          formatter=:plain)
-vline!([0, lr1, lr1+lr2, lr1+lr2+lr3], line = :dash)
+          margin = 10Plots.mm,
+          formatter=:plain
+         )
+
+vline!([0, lr1, lr1+lr2, lr1+lr2+lr3],
+       line = :dash,
+       label = ""
+      )
+
 annotate!(0+900, 2, text(L"η = 0.01"))
 annotate!(lr1+1000, 2, text(L"η = 0.001"))
 annotate!(lr1+lr2+1100, 2, text(L"η = 0.0001"))
 annotate!(lr1+lr2+lr3+1200, 2, text(L"η = 0.00001"))
+
+xlabel!(L"epochs")
+ylabel!(L"log_{10}(loss)")
+yticks!(-5:1:3)
+xticks!(0:2_000:30_000)
+
 png(p1, "../images/$(Grid)/loss_$(α)_$(Grid).png")
