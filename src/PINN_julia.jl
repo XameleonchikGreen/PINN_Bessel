@@ -1,6 +1,7 @@
 # Physical-informed Neural Network
 using NeuralPDE, Lux, ModelingToolkit
 using Optimization, OptimizationOptimisers
+using QuasiMonteCarlo, Random
 # Diagram of functions
 using Plots, LaTeXStrings
 import ModelingToolkit: Interval, infimum, supremum
@@ -21,8 +22,21 @@ const lr2 = 4000;                   # Epochs for 0.001 lr
 const lr3 = 8000;                   # Epochs for 0.0001 lr
 const lr4 = 14000;                  # Epochs for 0.00001 lr
 const α = 1;                        # Order of Bessel function
-const Grid = "random";             # "uniform", "random", "quasi-random", "adaptive" grids
+const Grid = "uniform";             # "uniform", "random", "quasi-random", "adaptive" grids
 const finding_weights = false;      # 'true' for finding new weights and 'false' for using weights from file
+pnt = Vector{Vector{Float64}}(undef, 1);
+
+# Struct for training
+Base.@kwdef struct MyGrid <: QuasiMonteCarlo.DeterministicSamplingAlgorithm
+    R::RandomizationMethod = NoRand()
+end
+
+function QuasiMonteCarlo.sample(n::Integer, d::Integer, S::MyGrid, T = Float64)
+    # samples = rand.(range.(zeros(T, d), ones(T,d); length = n+1), Ref(n))
+    # randomize(mapreduce(permutedims, vcat, samples), S.R)
+    global pnt
+    randomize(mapreduce(permutedims, vcat, pnt), S.R)
+end
 
 # Bessel ODE
 eq = Dxx(y(x)) * x^2 + Dx(y(x)) * x + (x^2 - α^2) * y(x) ~ 0
@@ -39,7 +53,7 @@ end
 domains = [x ∈ Interval(0.0, 10.0)]
 
 # Neural network
-inner = 16
+const inner = 16
 chain = Lux.Chain(Dense(1, inner, sin),
                   Dense(inner, inner, sin),
                   Dense(inner, inner, sin),
@@ -47,16 +61,15 @@ chain = Lux.Chain(Dense(1, inner, sin),
 
 # Discretization
 if(Grid == "uniform")
-    strategy = GridTraining(0.05)           # 10 / 0.05 = 200 points
+    pnt[1] = collect(Float64, 0.005:0.005:1.0)
 elseif(Grid == "random")
-    strategy = StochasticTraining(200)      # 200 points
+    pnt[1] = [0]
 end
-loss_type = NonAdaptiveLoss(pde_loss_weights = 1.0, bc_loss_weights = 0.3, additional_loss_weights = 0.0)
+strategy = QuasiRandomTraining(200, sampling_alg = MyGrid(), resampling = false, minibatch = 1)
 
 if(finding_weights)
-    discretization = PhysicsInformedNN(chain, strategy, adaptive_loss=loss_type)
+    discretization = PhysicsInformedNN(chain, strategy)
     @named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
-    prob = discretize(pde_system, discretization)
 
     # Saving weights
     weights = prob.u0
@@ -65,9 +78,19 @@ else
     # Loading weights
     loadata = load("../weights/SIMB.jld2")
 
-    discretization = PhysicsInformedNN(chain, strategy, adaptive_loss=loss_type, init_params = loadata["params"])
+    discretization = PhysicsInformedNN(chain, strategy, init_params = loadata["params"])
     @named pde_system = PDESystem(eq, bcs, domains, [x], [y(x)])
-    prob = discretize(pde_system, discretization)
+end
+sym_prob = NeuralPDE.symbolic_discretize(pde_system, discretization)
+
+phi = sym_prob.phi
+
+pde_loss_functions = sym_prob.loss_functions.pde_loss_functions
+bc_loss_functions = sym_prob.loss_functions.bc_loss_functions
+loss_functions = [pde_loss_functions; bc_loss_functions]
+
+function loss_function(θ, p)
+    return sum(map(l -> l(θ), loss_functions))
 end
 
 loss = []
@@ -79,6 +102,9 @@ callback = function (p, l)
     return false
 end
 
+f_ = OptimizationFunction(loss_function, Optimization.AutoZygote())
+prob = Optimization.OptimizationProblem(f_, sym_prob.flat_init_params)
+
 res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.01); callback = callback, maxiters = lr1)
 prob = remake(prob, u0 = res.u)
 res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.001); callback = callback, maxiters = lr2)
@@ -86,8 +112,6 @@ prob = remake(prob, u0 = res.u)
 res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.0001); callback = callback, maxiters = lr3)
 prob = remake(prob, u0 = res.u)
 res = Optimization.solve(prob, OptimizationOptimisers.Adam(0.00001); callback = callback, maxiters = lr4)
-
-phi = discretization.phi
 
 # Creating diagrams
 dx = 0.05
@@ -113,6 +137,9 @@ plot!(x_plot,
       size = (1600, 900),
       left_margin=10Plots.mm,
       bottom_margin=10Plots.mm)
+vline!(pnt .* 10,
+       line = :dash,
+       linecolor = :green)
 png("../images/$(Grid)/Bessel_$(α)_$(Grid).png")
 
 p1 = plot(LinearIndices(loss),
