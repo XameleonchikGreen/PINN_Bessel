@@ -78,7 +78,7 @@ while(l+1 <= length(arr))
         l += 1
     else
         push!(arr, arr[length(arr)])
-        for i in (length(arr) - 1):-1:l+1
+        for i in (length(arr) - 1):-1:l+2
             arr[i] = arr[i - 1]
         end
         arr[l+1] = (x0 + x1) / 2
