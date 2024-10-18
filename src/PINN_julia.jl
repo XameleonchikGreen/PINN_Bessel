@@ -22,7 +22,7 @@ const lr2 = 4000;                   # Epochs for 0.001 lr
 const lr3 = 8000;                   # Epochs for 0.0001 lr
 const lr4 = 14000;                  # Epochs for 0.00001 lr
 const α = 0;                        # Order of Bessel function
-const Grid = "quasi-random";             # "uniform", "random", "quasi-random", "adaptive" grids
+const Grid = "adaptive";             # "uniform", "random", "quasi-random", "adaptive" grids
 const finding_weights = false;      # 'true' for finding new weights and 'false' for using weights from file
 pnt = Vector{Vector{Float64}}(undef, 1);
 
@@ -75,7 +75,27 @@ elseif(Grid == "quasi-random")
         push!(pnt[1], s_0 + n*ϕ)
     end
     pnt[1] = mod1.(pnt[1], 1)
+elseif(Grid == "adaptive")
+    const a = 0.005
+    pnt[1] = collect(0.2:0.2:10.0)
+    l = 1
+    while(l+1 <= length(pnt[1]))
+        global l
+        x0 = pnt[1][l]
+        x1 = pnt[1][l+1]
+        if(besselj_der(α, (x0 + x1) / 2.0) * (x1 - x0) < a)
+            l += 1
+        else
+            push!(pnt[1], pnt[1][length(pnt[1])])
+            for i in (length(pnt[1]) - 1):-1:l+1
+                pnt[1][i] = pnt[1][i - 1]
+            end
+            pnt[1][l+1] = (x0 + x1) / 2
+        end
+    end
+    pnt[1] = pnt[1] ./ 10.0
 end
+
 strategy = QuasiRandomTraining(200, sampling_alg = MyGrid(), resampling = false, minibatch = 1)
 
 loadata = Dict{String, Any}("params" => nothing)
