@@ -21,8 +21,8 @@ const lr1 = 4000;                   # Epochs for 0.01 lr
 const lr2 = 4000;                   # Epochs for 0.001 lr
 const lr3 = 8000;                   # Epochs for 0.0001 lr
 const lr4 = 14000;                  # Epochs for 0.00001 lr
-const α = 1;                        # Order of Bessel function
-const Grid = "uniform";             # "uniform", "random", "quasi-random", "adaptive" grids
+const α = 0;                        # Order of Bessel function
+const Grid = "quasi-random";             # "uniform", "random", "quasi-random", "adaptive" grids
 const finding_weights = false;      # 'true' for finding new weights and 'false' for using weights from file
 pnt = Vector{Vector{Float64}}(undef, 1);
 
@@ -34,6 +34,11 @@ end
 function QuasiMonteCarlo.sample(n::Integer, d::Integer, S::MyGrid, T = Float64)
     global pnt
     randomize(mapreduce(permutedims, vcat, pnt), S.R)
+end
+
+# Bessel first derivative
+function besselj_der(α, x)
+    return α / x * besselj(α, x) - besselj(α + 1, x)
 end
 
 # Bessel ODE
@@ -62,6 +67,14 @@ if(Grid == "uniform")
     pnt[1] = collect(Float64, 0.005:0.005:1.0)
 elseif(Grid == "random")
     pnt[1] = Random.rand(Float64, 200)
+elseif(Grid == "quasi-random")
+    pnt[1] = []
+    const s_0 = 0
+    const ϕ = Base.MathConstants.golden
+    for n in 1:1:200
+        push!(pnt[1], s_0 + n*ϕ)
+    end
+    pnt[1] = mod1.(pnt[1], 1)
 end
 strategy = QuasiRandomTraining(200, sampling_alg = MyGrid(), resampling = false, minibatch = 1)
 
@@ -145,7 +158,7 @@ plot!(x_scatter,
 xlabel!(L"X")
 ylabel!(L"Y")
 ylims!(-1, 1)
-xlims!(0, 10)
+xticks!(0:1:10)
 
 png("../images/$(Grid)/Bessel_$(α)_$(Grid).png")
 
