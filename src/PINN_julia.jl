@@ -24,7 +24,7 @@ const lr4 = 14000;                  # Epochs for 0.00001 lr
 const α = 0;                        # Order of Bessel function
 const Grid = "adaptive";             # "uniform", "random", "quasi-random", "adaptive" grids
 const finding_weights = false;      # 'true' for finding new weights and 'false' for using weights from file
-const a = 0.01;                     # Constant for adaptive loss
+const a = 0.01;                     # Constant for adaptive loss (0.01 - 0.04 step 0.005)
 pnt = Vector{Vector{Float64}}(undef, 1);
 
 # Struct for training
@@ -86,6 +86,7 @@ while(l+1 <= length(arr))
 end
 arr = arr ./ 10.0
 const n = length(arr)
+@show n
 
 # Discretization
 if(Grid == "uniform")
