@@ -1,0 +1,117 @@
+a = 0.01, n = 386:
+    uniform:
+      final loss is 1.0382124491922491e-5, final error is 0.010676872255090175
+    random:
+      final loss is 1.060374971750548e-5, final error is 0.009495214626577875
+    quasi-random:
+      final loss is 9.66891655949859e-6, final error is 0.010592000838355653
+    adaptive:
+      final loss is 3.538111799606407e-6, final error is 0.006340221068791285
+a = 0.0125, n = 329:
+    uniform:
+      final loss is 9.762643823717008e-6, final error is 0.010650237465855472
+    random:
+      final loss is 1.5240621815910485e-5, final error is 0.009025388320882288
+    quasi-random:
+      final loss is 1.0990704786176207e-5, final error is 0.010365863132129616
+    adaptive:
+      final loss is 4.01229756740314e-6, final error is 0.006159174196799233
+a = 0.015, n = 239:
+    uniform:
+      final loss is 1.035415330055552e-5, final error is 0.010605925933722005
+    random:
+      final loss is 5.806153772166363e-6, final error is 0.010290509755758404
+    quasi-random:
+      final loss is 1.0886970399900328e-5, final error is 0.009712087013649784
+    adaptive:
+      final loss is 1.5361233285983101e-6, final error is 0.0052107980411285615
+a = 0.0175, n = 205:
+    uniform:
+      final loss is 1.0158050266599804e-5, final error is 0.010636453499608178
+    random:
+      final loss is 4.2565285165936815e-6, final error is 0.007645513902507117
+    quasi-random:
+      final loss is 1.081851099724114e-5, final error is 0.010695649959320264
+    adaptive:
+      final loss is 4.5195656538124695e-6, final error is 0.006187108539236874
+a = 0.02, n = 195:
+    uniform:
+      final loss is 1.0213224912973701e-5, final error is 0.010626257468461686
+    random:
+      final loss is 4.2350605756509644e-6, final error is 0.008191649483871855
+    quasi-random:
+      final loss is 9.809801005442859e-6, final error is 0.010365031253178558
+    adaptive:
+      final loss is 4.221722206381998e-6, final error is 0.006567768563352172
+a = 0.0225, n = 181:
+    uniform:
+      final loss is 9.905982953426839e-6, final error is 0.010637262368689004
+    random:
+      final loss is 7.23480258924131e-6, final error is 0.008585436354462406
+    quasi-random:
+      final loss is 9.959008619190028e-6, final error is 0.010580869368159718
+    adaptive:
+      final loss is 4.143569929967243e-6, final error is 0.006541733652687398
+a = 0.025, n = 167:
+    uniform:
+      final loss is 9.598456993091239e-6, final error is 0.010689633816312383
+    random:
+      final loss is 1.2362570232264348e-5, final error is 0.006700507550556067
+    quasi-random:
+      final loss is 6.772563714234159e-6, final error is 0.009379970340407051
+    adaptive:
+      final loss is 3.669824498648352e-6, final error is 0.005292034949766933
+a = 0.0275, n = 143:
+    uniform:
+      final loss is 1.0166667699908486e-5, final error is 0.010494247361165776
+    random:
+      final loss is 1.4293294706830024e-5, final error is 0.015182999977889966
+    quasi-random:
+      final loss is 1.0945458575055358e-5, final error is 0.008136227421402742
+    adaptive:
+      final loss is 2.7319746718727887e-6, final error is 0.007132673117704602
+a = 0.03, n = 123:
+    uniform:
+      final loss is 1.0345914613448157e-5, final error is 0.01062572855804389
+    random:
+      final loss is 9.036559222708096e-6, final error is 0.007311507092172764
+    quasi-random:
+      final loss is 1.288192988447656e-5, final error is 0.009135830662999167
+    adaptive:
+      final loss is 3.37071621986364e-6, final error is 0.007526275885089473
+a = 0.0325, n = 115:
+    uniform:
+      final loss is 5.611142107677407e-6, final error is 0.009430619524401385
+    random:
+      final loss is 1.4631669755057717e-5, final error is 0.008043577350688724
+    quasi-random:
+      final loss is 5.881833803195311e-6, final error is 0.005805934073936925
+    adaptive:
+      final loss is 1.41004936325139e-6, final error is 0.004570766842352025
+a = 0.035, n = 106:
+    uniform:
+      final loss is 7.817764835646617e-6, final error is 0.00859866952829258
+    random:
+      final loss is 1.2148076773199454e-5, final error is 0.0067156772824832345
+    quasi-random:
+      final loss is 9.735702029100984e-6, final error is 0.006797037889137103
+    adaptive:
+      final loss is 1.3605249158874387e-6, final error is 0.005357310058699105
+a = 0.0375, n = 104:
+    uniform:
+      final loss is 2.9203319587991035e-6, final error is 0.0064752374929167855
+    random:
+      final loss is 6.684207414463388e-6, final error is 0.007525424836404504
+    quasi-random:
+      final loss is 1.2526357972367377e-5, final error is 0.00843655378611452
+    adaptive:
+      final loss is 2.0473783360315137e-6, final error is 0.006928001257147431
+a = 0.04, n = 102:
+    uniform:
+      final loss is 3.868438462039734e-6, final error is 0.006842191739800163
+    random:
+      final loss is 1.3373638920800738e-6, final error is 0.005172608421097902
+    quasi-random:
+      final loss is 1.1919568000671234e-5, final error is 0.009248467676758243
+    adaptive:
+      final loss is 2.089876171948636e-6, final error is 0.0069477391298378155

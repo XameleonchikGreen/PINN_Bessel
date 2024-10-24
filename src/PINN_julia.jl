@@ -8,8 +8,11 @@ import ModelingToolkit: Interval, infimum, supremum
 using Printf
 # Saving weights
 using JLD2
+using Logging
 # Solution
 using Bessels
+
+disable_logging(Logging.Warn)
 
 @parameters x
 @variables y(..)
@@ -21,8 +24,8 @@ const lr1 = 4000;                   # Epochs for 0.01 lr
 const lr2 = 4000;                   # Epochs for 0.001 lr
 const lr3 = 8000;                   # Epochs for 0.0001 lr
 const lr4 = 14000;                  # Epochs for 0.00001 lr
-const α = 0;                        # Order of Bessel function
-const Grid = "adaptive";             # "uniform", "random", "quasi-random", "adaptive" grids
+const α = 1;                        # Order of Bessel function
+const Grid = "uniform";             # "uniform", "random", "quasi-random", "adaptive" grids
 const finding_weights = false;      # 'true' for finding new weights and 'false' for using weights from file
 const a = 0.01;                     # Constant for adaptive loss (0.01 - 0.04 step 0.005)
 pnt = Vector{Vector{Float64}}(undef, 1);
@@ -133,7 +136,7 @@ loss = []
 
 # Callback function
 callback = function (p, l)
-    push!(loss, log10(l))
+    push!(loss, l)
     @printf("Step: %5d Current loss is: %g \n", length(loss), l)
     return false
 end
@@ -197,7 +200,8 @@ p1 = plot(LinearIndices(loss),
           label = "loss(epochs)",
           size = (1600, 900),
           margin = 10Plots.mm,
-          formatter=:plain
+          formatter=:plain,
+          yscale = :log10
          )
 
 vline!([0, lr1, lr1+lr2, lr1+lr2+lr3],
@@ -211,8 +215,8 @@ annotate!(lr1+lr2+1100, 2, text(L"η = 0.0001"))
 annotate!(lr1+lr2+lr3+1200, 2, text(L"η = 0.00001"))
 
 xlabel!(L"epochs")
-ylabel!(L"log_{10}(loss)")
-yticks!(-5:1:3)
+ylabel!(L"loss")
+yticks!([10^3, 10^2, 10^1, 10^0, 10^-1, 10^-2, 10^-3, 10^-4, 10^-5, 10^-6])
 xticks!(0:2_000:30_000)
 
 png(p1, "../images/$(Grid)/loss_$(α)_$(Grid).png")

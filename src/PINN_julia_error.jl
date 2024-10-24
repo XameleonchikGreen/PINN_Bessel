@@ -33,6 +33,7 @@ errors = Dict(
     "adaptive" => []
 )
 sizes = []
+io = open("losses_errors_$(α).txt", "w")
 
 # Struct for training
 Base.@kwdef struct MyGrid <: QuasiMonteCarlo.DeterministicSamplingAlgorithm
@@ -52,8 +53,7 @@ end
 # Loading weights
 loadata = load("../weights/SIMB_$(α).jld2")
 
-for a in 0.01:0.005:0.04
-    println("a = $(a):")
+for a in 0.01:0.0025:0.04
     # Calculating number of points
     arr = collect(0.2:0.2:10.0)
     l = 0
@@ -76,9 +76,12 @@ for a in 0.01:0.005:0.04
     end
     arr = arr ./ 10.0
     n = length(arr)
-    push!(sizes, log(1 // n))
+    println("a = $(a), n = $(n):")
+    write(io, "a = $(a), n = $(n):\n")
+    push!(sizes, 1 // n)
     for Grid in ["uniform", "random", "quasi-random", "adaptive"]
         println("    $(Grid):")
+        write(io, "    $(Grid):\n")
         global pnt
         # Bessel ODE
         eq = Dxx(y(x)) * x^2 + Dx(y(x)) * x + (x^2 - α^2) * y(x) ~ 0
@@ -166,33 +169,41 @@ for a in 0.01:0.005:0.04
         end
 
         @printf("      final loss is %g, final error is %g\n", lss, error)
-        push!(errors[Grid], log(error))
+        write(io, "      final loss is $(lss), final error is $(error)\n")
+        push!(errors[Grid], error)
     end
 end
+
+close(io)
 
 plot(sizes,
      errors["uniform"],
      label = "Uniform grid",
+     scale = :log10,
      size = (1600, 900),
-     margin = 10Plots.mm
+     margin = 10Plots.mm,
+     legend = :outertopright
     )
 
-scatter!(sizes,
-         errors["random"],
-         label = "Random grid"
-        )
+plot!(sizes,
+      errors["random"],
+      label = "Random grid",
+      scale = :log10,
+     )
 
-scatter!(sizes,
-         errors["quasi-random"],
-         label = "Quasi-random grid"
-        )
+plot!(sizes,
+      errors["quasi-random"],
+      label = "Quasi-random grid",
+      scale = :log10,
+     )
 
-scatter!(sizes,
-         errors["adaptive"],
-         label = "Adaptive grid"
-       )
+plot!(sizes,
+      errors["adaptive"],
+      label = "Adaptive grid",
+      scale = :log10,
+     )
 
-xlabel!(L"\ln\left(\frac{1}{N - 1}\right)")
-ylabel!(L"\ln\left(errors\right)")
+xlabel!(L"\frac{1}{N - 1}")
+ylabel!(L"errors")
 
 png("../images/absolute_error/Bessel_$(α)_absoluteError.png")
