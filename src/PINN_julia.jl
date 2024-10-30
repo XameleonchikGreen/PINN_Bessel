@@ -24,7 +24,7 @@ const lr1 = 4000;                   # Epochs for 0.01 lr
 const lr2 = 4000;                   # Epochs for 0.001 lr
 const lr3 = 8000;                   # Epochs for 0.0001 lr
 const lr4 = 14000;                  # Epochs for 0.00001 lr
-const α = 1;                        # Order of Bessel function
+const α = 0;                        # Order of Bessel function
 const Grid = "uniform";             # "uniform", "random", "quasi-random", "adaptive" grids
 const finding_weights = false;      # 'true' for finding new weights and 'false' for using weights from file
 const a = 0.01;                     # Constant for adaptive loss (0.01 - 0.04 step 0.005)
@@ -172,7 +172,11 @@ plot(x_plot,
      label = "Bessel function",
      size = (1600, 900),
      margin = 10Plots.mm,
-     framestyle = :origin
+     framestyle = :origin,
+     legendfontsize = 16,
+     xtickfontsize = 16,
+     ytickfontsize = 16,
+     guidefontsize = 16
     )
 
 plot!(x_plot,
@@ -201,7 +205,11 @@ p1 = plot(LinearIndices(loss),
           size = (1600, 900),
           margin = 10Plots.mm,
           formatter=:plain,
-          yscale = :log10
+          yscale = :log10,
+          legendfontsize = 16,
+          xtickfontsize = 16,
+          ytickfontsize = 16,
+          guidefontsize = 16
          )
 
 vline!([0, lr1, lr1+lr2, lr1+lr2+lr3],
