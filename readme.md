@@ -76,7 +76,9 @@ To form an adaptive sample, we use the following methodology:
 1. Let's split the specified interval with a small number of points, choose the constant $\xi$
 (in this study, values from the interval $[0.01, 0.04]$ were used).
 2. For each interval $[x_k, x_{k+1}]$, we will verify the validity of the inequality.
-$$J_\alpha'\left(\frac{x_k + x_{k+1}}{2}\right) \cdot (x_{k+1} - x_k) < \xi$$
+```math
+J_\alpha'\left(\frac{x_k + x_{k+1}}{2}\right) \cdot (x_{k+1} - x_k) < \xi
+```
 3. If it is false, add the point $\frac{x_k+x_{k+1}}{2}$ to the partition and repeat the check
 for a new partition.
 
@@ -105,7 +107,7 @@ logically explained by the specialization of the choice of points for research.
 ![Adaptive grid loss](./images/adaptive/loss_1_adaptive.png "Bessel 1 adaptive loss diagram")
 
 Finally, we can compare the maximum absolute deviation from the exact analytical solution on different
-grids. The numerical data can be viewed in the files [for $\alpha = 0$](src/losses_errors_0.txt) and
-[for $\alpha = 1$](src/losses_errors_1.txt)
+grids. The numerical data can be viewed in the files [for zero order](src/losses_errors_0.txt) and
+[for first order](src/losses_errors_1.txt)
 
 ![Comparison on different grids](./images/absolute_error/Bessel_0_absoluteError.png "Comparison on different grids")
