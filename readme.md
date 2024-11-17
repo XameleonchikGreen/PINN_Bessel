@@ -58,9 +58,9 @@ generating pseudo-random numbers. The default algorithm in `Julia` is `Xoshiro25
 
 To generate a quasi-random sequence, we use the following algorithm:
 
-$$t_k = \{s_0 + k\phi\}$$
+$$t_k = \left{s_0 + k\phi\right}$$
 
-Here $\{x\}$ is the fractional part of the number $x$, and $k$ is the number of the point
+Here $\left{x\right}$ is the fractional part of the number $x$, and $k$ is the number of the point
 in the sample, takes values from $0$ to $n - 1$. The following constants are usually
 chosen: $s_0$ and $\phi$:
 
