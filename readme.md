@@ -62,7 +62,7 @@ $$t_k = \langle s_0 + k\phi \rangle$$
 
 Here $\langle x \rangle$ is the fractional part of the number $x$, and $k$ is the number of the point
 in the sample, takes values from $0$ to $n - 1$. The following constants are usually
-chosen: $s_0$ and $\phi$:
+chosen as here:
 
 $$s_0 = 0, \qquad \phi = \frac{1 + \sqrt{5}}{2}$$
 
